@@ -10,7 +10,6 @@ public class SpherePoint {
 	private Point3D point;
 	
 	/**
-	 * 
 	 * @param theta between 0 and 2pi
 	 * @param phi between -pi/2 and pi/2
 	 */
