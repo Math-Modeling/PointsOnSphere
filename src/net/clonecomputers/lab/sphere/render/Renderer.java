@@ -14,7 +14,7 @@ import net.clonecomputers.lab.sphere.*;
 
 public class Renderer extends JPanel {
 	private BufferedImage canvas;
-	private Set<SpherePoint> points;
+	private Map<SpherePoint,Color> points;
 	private double zoom = .8;
 	private double pointSize = .03;
 	private SpherePoint viewAngle = new SpherePoint(0,0);
@@ -31,7 +31,7 @@ public class Renderer extends JPanel {
 	
 	public Renderer(int width, int height) {
 		this.canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		this.points = new HashSet<SpherePoint>();
+		this.points = new HashMap<SpherePoint,Color>();
 		this.setMaximumSize(new Dimension(width,height));
 		this.setMinimumSize(new Dimension(width,height));
 		this.setPreferredSize(new Dimension(width,height));
@@ -61,6 +61,7 @@ public class Renderer extends JPanel {
 		};
 		this.addMouseListener(listener);
 		this.addMouseMotionListener(listener);
+		this.updateDisplay();
 	}
 	
 	public void addPoint(SpherePoint p) {
@@ -68,7 +69,17 @@ public class Renderer extends JPanel {
 	}
 	
 	public void addPoint(SpherePoint p, boolean update) {
-		points.add(p);
+		addPoint(p, Color.BLUE, update);
+	}
+	
+	public void addPoint(SpherePoint p, Color c) {
+		addPoint(p, c, true);
+	}
+	
+	public void addPoint(SpherePoint p, Color c, boolean update) {
+		synchronized(this) {
+			points.put(p, c);
+		}
 		if(update) updateDisplay();
 	}
 	
@@ -77,23 +88,27 @@ public class Renderer extends JPanel {
 	}
 	
 	public void removePoint(SpherePoint p, boolean update) {
-		points.remove(p);
+		synchronized(this) {
+			points.remove(p);
+		}
 		if(update) updateDisplay();
 	}
 	
-	public void updateDisplay() {
+	public synchronized void updateDisplay() {
 		Graphics2D g = (Graphics2D) canvas.getGraphics();
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		for(SpherePoint raw: points) {
+		for(SpherePoint raw: points.keySet()) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
-			drawCircle(p.getPoint().y,p.getPoint().z,pointSize,Color.BLUE,g);
+			if(cos(p.getTheta()) <= 0){
+				drawCircle(p.getPoint().y,p.getPoint().z,pointSize,points.get(raw),g);
+			}
 		}
 		drawCircle(0,0,1-pointSize,new Color(1,1,1,.6f),g);
-		for(SpherePoint raw: points) {
+		for(SpherePoint raw: points.keySet()) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
 			if(cos(p.getTheta()) > 0){
-				drawCircle(p.getPoint().y,p.getPoint().z,pointSize,Color.BLUE,g);
+				drawCircle(p.getPoint().y,p.getPoint().z,pointSize,points.get(raw),g);
 			}
 		}
 		this.repaint();
@@ -124,8 +139,16 @@ public class Renderer extends JPanel {
 		g.fillOval(gx(x-r), gy(y+r), gsx(2*r), gsy(2*r));
 	}
 	
-	@Override public void paintComponent(Graphics g) {
+	@Override public synchronized void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.drawImage(canvas, 0, 0, this);
+	}
+
+	public synchronized void removeAllPoints() {
+		points.clear();
+	}
+	
+	public SpherePoint[] getAllPoints() {
+		return points.keySet().toArray(new SpherePoint[0]);
 	}
 }

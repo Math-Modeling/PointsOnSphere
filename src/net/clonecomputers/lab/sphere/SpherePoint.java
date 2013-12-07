@@ -3,7 +3,7 @@ package net.clonecomputers.lab.sphere;
 import static java.lang.Math.*;
 
 public class SpherePoint {
-	private final int id;
+	public final int id;
 	private static int globalId = 0;
 	private double theta = 0;
 	private double phi = 0;
@@ -18,6 +18,15 @@ public class SpherePoint {
 		this.theta = theta;
 		this.phi = phi;
 		updatePoint();
+	}
+	
+	public SpherePoint(double x, double y, double z) {
+		this(new Point3D(x,y,z));
+	}
+	
+	public SpherePoint(Point3D point) {
+		this.id = globalId++;
+		this.setPoint(point);
 	}
 	
 	public SpherePoint() {
@@ -63,8 +72,7 @@ public class SpherePoint {
 		double xzDistance = Math.hypot(getPoint().x, getPoint().z);
 		double xzAngle = Math.atan2(getPoint().z,getPoint().x);
 		Point3D newPoint = new Point3D(xzDistance*cos(xzAngle+howFar),getPoint().y,xzDistance*sin(xzAngle+howFar));
-		this.setTheta(atan2(newPoint.y,newPoint.x));
-		this.setPhi(asin(newPoint.z));
+		this.setPoint(newPoint);
 		//System.out.println(howFar+": "+start.getPoint()+" -> "+this.getPoint());
 	}
 	
@@ -76,17 +84,17 @@ public class SpherePoint {
 		return point;
 	}
 	
-	public class Point3D {
-		public final double x;
-		public final double y;
-		public final double z;
-		public Point3D(double x, double y, double z) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-		}
-		public String toString() {
-			return String.format("(%f,%f,%f)", x,y,z);
-		}
+	public void setPoint(Point3D point) {
+		this.point = point;
+		this.theta = atan2(point.y,point.x);
+		this.phi = asin(point.z);
 	}
+	
+	/*public boolean equals(Object o) {
+		return (o instanceof SpherePoint) && ((SpherePoint)o).id == id;
+	}
+	
+	public int hashCode() {
+		return id;
+	}*/
 }
