@@ -46,7 +46,7 @@ public class PointFinder {
 
 	private void optimizePoints() {
 		SpherePoint[] points = r.getAllPoints();
-		for(int step = 20; step < 1000; step+=2) {
+		for(int step = 20; true; step+=2) {
 			for(SpherePoint p: points) {
 				double maxCosSoFar = -1;
 				SpherePoint closestPoint = null;
