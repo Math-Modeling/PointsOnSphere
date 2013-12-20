@@ -59,7 +59,7 @@ public class PointFinder {
 		List<SpherePoint> pts = Arrays.asList(points);
 		Collections.shuffle(pts);
 		points = pts.toArray(new SpherePoint[0]);
-		for(int step = 20; true; step+=2) {
+		for(int step = 20; true; step++) {
 			double worstDistance = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
 				double maxCosSoFar = -1;
