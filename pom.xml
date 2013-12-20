@@ -29,7 +29,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>fully.qualified.MainClass</mainClass>
+              <mainClass>net.clonecomputers.lab.sphere.calculate.PointFinder</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
