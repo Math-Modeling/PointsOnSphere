@@ -14,7 +14,7 @@ import net.clonecomputers.lab.sphere.*;
 
 public class Renderer extends JPanel {
 	private BufferedImage canvas;
-	private Map<SpherePoint,Color> points;
+	private Map<SpherePoint,PointProperties> points;
 	private double zoom = .8;
 	private double pointSize = .03;
 	private SpherePoint viewAngle = new SpherePoint(0,0);
@@ -31,7 +31,7 @@ public class Renderer extends JPanel {
 	
 	public Renderer(int width, int height) {
 		this.canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		this.points = new HashMap<SpherePoint,Color>();
+		this.points = new HashMap<SpherePoint,PointProperties>();
 		this.setMaximumSize(new Dimension(width,height));
 		this.setMinimumSize(new Dimension(width,height));
 		this.setPreferredSize(new Dimension(width,height));
@@ -78,7 +78,14 @@ public class Renderer extends JPanel {
 	
 	public void addPoint(SpherePoint p, Color c, boolean update) {
 		synchronized(this) {
-			points.put(p, c);
+			points.put(p, new PointProperties(c));
+		}
+		if(update) updateDisplay();
+	}
+	
+	public void addPoint(SpherePoint p, PointProperties properties, boolean update) {
+		synchronized(this) {
+			points.put(p, properties);
 		}
 		if(update) updateDisplay();
 	}
@@ -101,14 +108,14 @@ public class Renderer extends JPanel {
 		for(SpherePoint raw: points.keySet()) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
 			if(cos(p.getTheta()) <= 0){
-				drawCircle(p.getPoint().y,p.getPoint().z,pointSize,points.get(raw),g);
+				drawCircle(p.getPoint().y,p.getPoint().z,points.get(raw).pointSize,points.get(raw).color,g);
 			}
 		}
 		drawCircle(0,0,1-pointSize,new Color(1,1,1,.6f),g);
 		for(SpherePoint raw: points.keySet()) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
 			if(cos(p.getTheta()) > 0){
-				drawCircle(p.getPoint().y,p.getPoint().z,pointSize,points.get(raw),g);
+				drawCircle(p.getPoint().y,p.getPoint().z,points.get(raw).pointSize,points.get(raw).color,g);
 			}
 		}
 		this.repaint();
@@ -149,6 +156,10 @@ public class Renderer extends JPanel {
 	}
 	
 	public SpherePoint[] getAllPoints() {
-		return points.keySet().toArray(new SpherePoint[0]);
+		Set<SpherePoint> allPoints = new HashSet<SpherePoint>(points.keySet());
+		for(SpherePoint p: points.keySet()) {
+			if(!points.get(p).shouldBeMoved) allPoints.remove(p);
+		}
+		return allPoints.toArray(new SpherePoint[0]);
 	}
 }

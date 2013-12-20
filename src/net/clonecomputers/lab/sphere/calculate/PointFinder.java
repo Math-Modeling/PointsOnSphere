@@ -3,7 +3,13 @@ package net.clonecomputers.lab.sphere.calculate;
 import static java.lang.Math.*;
 import static net.clonecomputers.lab.sphere.Point3D.*;
 
+import java.awt.Color;
 import java.io.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import net.clonecomputers.lab.sphere.*;
 import net.clonecomputers.lab.sphere.render.*;
@@ -17,12 +23,10 @@ public class PointFinder {
 	}
 
 	private void run() {
-		System.out.println("How many points?");
+		//System.out.println("How many points?");
 		try {
-			String s = new BufferedReader(new InputStreamReader(System.in)).readLine();
+			String s = JOptionPane.showInputDialog("How many points?");
 			numPoints = Integer.parseInt(s);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		} catch (NumberFormatException e) {
 			System.err.println("Not a number");
 			return;
@@ -30,6 +34,8 @@ public class PointFinder {
 		r = new Renderer(600,600);
 		while(true) {
 			r.removeAllPoints();
+			r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
+			r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
 			for(int i = 0; i < numPoints; i++) {
 				r.addPoint(new SpherePoint(random()*2-1,random()*2-1,random()*2-1), false);
 			}
@@ -44,9 +50,17 @@ public class PointFinder {
 		}
 	}
 
+	/*private void optimizePoints(Pair p) {
+		
+	}*/
+	
 	private void optimizePoints() {
 		SpherePoint[] points = r.getAllPoints();
+		List<SpherePoint> pts = Arrays.asList(points);
+		Collections.shuffle(pts);
+		points = pts.toArray(new SpherePoint[0]);
 		for(int step = 20; true; step+=2) {
+			double worstDistance = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
 				double maxCosSoFar = -1;
 				SpherePoint closestPoint = null;
@@ -56,11 +70,13 @@ public class PointFinder {
 					if(thisCos >= maxCosSoFar){
 						closestPoint = q;
 						maxCosSoFar = thisCos;
+						if(maxCosSoFar > worstDistance) worstDistance = maxCosSoFar;
 					}
 				}
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
 			r.updateDisplay();
+			System.out.println(worstDistance);
 			Thread.yield();
 			/*try {
 				Thread.sleep(1);
@@ -78,7 +94,9 @@ public class PointFinder {
 		return Math.cos(theta);
 	}
 
-	private static void moveApart(SpherePoint p, SpherePoint q, double theta) {
+	private void moveApart(SpherePoint p, SpherePoint q, double theta) {
+		r.addPoint(p.clone(), new PointProperties(Color.RED, false, .5), false);
+		r.addPoint(q.clone(), new PointProperties(Color.RED, false, .5), false);
 		//Renderer r = new Renderer(600,600);
 		//r.addPoint(p(p.getPoint()));
 		//r.addPoint(p(q.getPoint()));
