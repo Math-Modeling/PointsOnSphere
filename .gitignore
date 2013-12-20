@@ -1,6 +1,7 @@
 #For Maven
 /target
 
+
 #For Eclipse
 *.pydevproject
 .project
@@ -28,3 +29,23 @@ local.properties
 
 # PDT-specific
 .buildpath
+
+
+#For OSX
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must ends with two \r.
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Broken temperary / saving files created on some operating systems / programs
+*~
