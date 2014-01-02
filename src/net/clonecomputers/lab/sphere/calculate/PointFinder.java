@@ -46,7 +46,7 @@ public class PointFinder {
 		SpherePoint[] points = r.getAllPoints();
 		for(int step = 20; true; step++) {
 			shuffle(points);
-			double worstDistance = -Double.MAX_VALUE;
+			double score = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
 				double maxCosSoFar = -1;
 				SpherePoint closestPoint = null;
@@ -56,13 +56,13 @@ public class PointFinder {
 					if(thisCos >= maxCosSoFar){
 						closestPoint = q;
 						maxCosSoFar = thisCos;
-						if(maxCosSoFar > worstDistance) worstDistance = maxCosSoFar;
+						if(maxCosSoFar > score) score = maxCosSoFar;
 					}
 				}
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
 			r.updateDisplay();
-			System.out.println(worstDistance);
+			System.out.println(score);
 			Thread.yield();
 			/*try {
 				Thread.sleep(1);
@@ -86,8 +86,8 @@ public class PointFinder {
 		return cos(p.getPhi())*cos(q.getPhi())*cos(p.getTheta()-q.getTheta()) + sin(p.getPhi())*sin(q.getPhi());
 	}
 
-	private static double cos(double theta){
-		return Math.cos(theta);
+	private static double cos(double theta){ // here so that I can still access Math.cos as cos
+		return Math.cos(theta);				 // despite also defining my own cos method for 2 SpherePoints
 	}
 
 	private void moveApart(SpherePoint p, SpherePoint q, double theta) {
