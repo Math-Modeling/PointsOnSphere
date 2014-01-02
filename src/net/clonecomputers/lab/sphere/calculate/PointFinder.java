@@ -3,19 +3,15 @@ package net.clonecomputers.lab.sphere.calculate;
 import static java.lang.Math.*;
 import static net.clonecomputers.lab.sphere.Point3D.*;
 
-import java.awt.Color;
-import java.io.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.awt.*;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import net.clonecomputers.lab.sphere.*;
-import net.clonecomputers.lab.sphere.render.*;
+import net.clonecomputers.lab.sphere.render.Renderer;
 
 public class PointFinder {
-	private int numPoints;
+	private int numPoints = 0;
 	private Renderer r;
 
 	public static void main(String[] args) {
@@ -23,43 +19,33 @@ public class PointFinder {
 	}
 
 	private void run() {
-		//System.out.println("How many points?");
-		try {
-			String s = JOptionPane.showInputDialog("How many points?");
-			numPoints = Integer.parseInt(s);
-		} catch (NumberFormatException e) {
-			System.err.println("Not a number");
-			return;
+		boolean done = false;
+		while(!done) {
+			try {
+				String s = JOptionPane.showInputDialog("How many points?");
+				if(s == null) System.exit(0); // canceled
+				numPoints = Integer.parseInt(s);
+				done = true;
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(null, "Not a number", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 		r = new Renderer(600,600);
-		while(true) {
-			r.removeAllPoints();
-			r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
-			r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
-			for(int i = 0; i < numPoints; i++) {
-				r.addPoint(new SpherePoint(random()*2-1,random()*2-1,random()*2-1), false);
-			}
-			r.updateDisplay();
-			optimizePoints();
-			System.out.println("done");
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+		r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
+		r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
+		for(int i = 0; i < numPoints; i++) {
+			double z = random()*2-1;
+			double phi = random()*2*PI;
+			r.addPoint(new SpherePoint(sqrt(1-z*z)*cos(phi), sqrt(1-z*z)*sin(phi), z), false);
 		}
+		r.updateDisplay();
+		optimizePoints();
 	}
 
-	/*private void optimizePoints(Pair p) {
-		
-	}*/
-	
 	private void optimizePoints() {
 		SpherePoint[] points = r.getAllPoints();
-		List<SpherePoint> pts = Arrays.asList(points);
-		Collections.shuffle(pts);
-		points = pts.toArray(new SpherePoint[0]);
 		for(int step = 20; true; step++) {
+			shuffle(points);
 			double worstDistance = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
 				double maxCosSoFar = -1;
@@ -86,10 +72,20 @@ public class PointFinder {
 		}
 	}
 
+	private static <T> void shuffle(T[] a) {
+		T temp = null;
+		for(int i = a.length - 1; i >= 0; i--) {
+			int j = (int)random()*i;
+			temp = a[i];
+			a[i] = a[j];
+			a[j] = temp;
+		}
+	}
+
 	private static double cos(SpherePoint p, SpherePoint q) {
 		return cos(p.getPhi())*cos(q.getPhi())*cos(p.getTheta()-q.getTheta()) + sin(p.getPhi())*sin(q.getPhi());
 	}
-	
+
 	private static double cos(double theta){
 		return Math.cos(theta);
 	}
@@ -112,13 +108,13 @@ public class PointFinder {
 		//r.addPoint(p(unitAxis),CYAN);
 		//r.addPoint(p(product(unitAxis,-1)),CYAN);
 		Point3D pRot1 = sum(product(pp,cos(theta)),
-						   product(cross(unitAxis,pp),sin(theta)),
-						   product(pp,dot(unitAxis,pp)*(1-cos(theta)))
-					   );
+				product(cross(unitAxis,pp),sin(theta)),
+				product(pp,dot(unitAxis,pp)*(1-cos(theta)))
+				);
 		Point3D pRot2 = sum(product(pp,cos(-theta)),
-				   			product(cross(unitAxis,pp),sin(-theta)),
-				   			product(pp,dot(unitAxis,pp)*(1-cos(-theta)))
-						);
+				product(cross(unitAxis,pp),sin(-theta)),
+				product(pp,dot(unitAxis,pp)*(1-cos(-theta)))
+				);
 		/*Point3D qRot1 = sum(product(qp,cos(theta)),
 				   		   product(cross(unitAxis,qp),sin(theta)),
 				   		   product(qp,dot(unitAxis,qp)*(1-cos(theta)))
