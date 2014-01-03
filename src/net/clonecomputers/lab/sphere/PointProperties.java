@@ -1,6 +1,6 @@
 package net.clonecomputers.lab.sphere;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class PointProperties {
 	public final Color color;
@@ -31,6 +31,12 @@ public class PointProperties {
 		color = c;
 		shouldBeMoved = move;
 		pointSize = defaultSize;
+	}
+	
+	public PointProperties(Color c, double size) {
+		color = c;
+		shouldBeMoved = true;
+		pointSize = defaultSize*size;
 	}
 	
 	public PointProperties(Color c, boolean move, double size) {
