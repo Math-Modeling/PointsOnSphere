@@ -34,9 +34,7 @@ public class PointFinder {
 		r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
 		r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
 		for(int i = 0; i < numPoints; i++) {
-			double z = random()*2-1;
-			double phi = random()*2*PI;
-			r.addPoint(new SpherePoint(sqrt(1-z*z)*cos(phi), sqrt(1-z*z)*sin(phi), z), false);
+			r.addPoint(new SpherePoint(), false);
 		}
 		r.updateDisplay();
 		optimizePoints();

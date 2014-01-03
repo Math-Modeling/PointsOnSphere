@@ -5,6 +5,7 @@ import static java.lang.Math.*;
 public class SpherePoint {
 	public final int id;
 	private static int globalId = 0;
+	
 	private double theta = 0;
 	private double phi = 0;
 	private Point3D point;
@@ -29,9 +30,14 @@ public class SpherePoint {
 		this.setPoint(point);
 	}
 	
+	/**
+	 * makes a random point
+	 */
 	public SpherePoint() {
 		this.id = globalId++;
-		updatePoint();
+		double z = random()*2-1;
+		double phi = random()*2*PI;
+		this.setPoint(new Point3D(sqrt(1-z*z)*cos(phi), sqrt(1-z*z)*sin(phi), z));
 	}
 	
 	public double getTheta() {
