@@ -21,11 +21,16 @@ public class Renderer extends JPanel {
 	
 	public static void main(String[] args) { // for testing only
 		Renderer r = new Renderer(600,600);
-		r.addPoint(new SpherePoint(0,PI/2));
+		/*r.addPoint(new SpherePoint(0,PI/2));
 		r.addPoint(new SpherePoint(0,-PI/2));
 		r.addPoint(new SpherePoint(0,0));
 		r.addPoint(new SpherePoint(2*PI/3,0));
-		r.addPoint(new SpherePoint(4*PI/3,0));
+		r.addPoint(new SpherePoint(4*PI/3,0));*/
+		for(int i = 0; i < 100; i++) {
+		r.addPoint(new SpherePoint(),
+				new PointProperties(new Color((float)random(),(float)random(),(float)random()),random()*2),
+				false);
+		}
 		r.updateDisplay();
 	}
 	
@@ -77,19 +82,18 @@ public class Renderer extends JPanel {
 	}
 	
 	public void addPoint(SpherePoint p, Color c, boolean update) {
-		synchronized(this) {
-			points.put(p, new PointProperties(c));
-		}
-		if(update) updateDisplay();
+		addPoint(p,new PointProperties(c),update);
 	}
 	
 	public void addPoint(SpherePoint p, PointProperties properties, boolean update) {
 		synchronized(this) {
 			points.put(p, properties);
 		}
-		if(update) updateDisplay();
+		if(update){
+			updateDisplay();
+		}
 	}
-	
+
 	public void removePoint(SpherePoint p) {
 		removePoint(p, true);
 	}
@@ -98,26 +102,65 @@ public class Renderer extends JPanel {
 		synchronized(this) {
 			points.remove(p);
 		}
-		if(update) updateDisplay();
+		if(update){
+			updateDisplay();
+		}
+	}
+	
+	private SpherePoint[] getPointsByDepth() {
+		SpherePoint[] pointsByDepth = points.keySet().toArray(new SpherePoint[0]);
+		Arrays.sort(pointsByDepth, new Comparator<SpherePoint>(){
+			@Override
+			public int compare(SpherePoint p1, SpherePoint p2) {
+				return (int)signum(
+					p1.getRelative(viewAngle.clone()).getPoint().x - 
+					p2.getRelative(viewAngle.clone()).getPoint().x);
+			}
+		});
+		return pointsByDepth;
 	}
 	
 	public synchronized void updateDisplay() {
 		Graphics2D g = (Graphics2D) canvas.getGraphics();
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		for(SpherePoint raw: points.keySet()) {
+		
+		SpherePoint[] pointsByDepth = getPointsByDepth();
+		boolean drawnBigSphere = false;
+		for(SpherePoint raw: pointsByDepth) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
-			if(cos(p.getTheta()) <= 0){
-				drawCircle(p.getPoint().y,p.getPoint().z,points.get(raw).pointSize,points.get(raw).color,g);
+			PointProperties props = points.get(raw);
+			if(!drawnBigSphere && p.getPoint().x >= 0) {
+				drawCircle(0,0,1,new Color(1,1,1,.6f),g);
+				drawnBigSphere = true;
+			}
+			drawCircle(
+				p.getPoint().y * (props.pointSize+1),
+				p.getPoint().z * (props.pointSize+1),
+				props.pointSize, props.color, g);
+		}
+		
+		/*for(SpherePoint raw: points.keySet()) {
+			SpherePoint p = raw.getRelative(viewAngle.clone());
+			PointProperties props = points.get(raw);
+			if(p.getPoint().x <= 0){
+				drawCircle(
+					p.getPoint().y * (props.pointSize+1),
+					p.getPoint().z * (props.pointSize+1),
+					props.pointSize, props.color, g);
 			}
 		}
-		drawCircle(0,0,1-pointSize,new Color(1,1,1,.6f),g);
+		drawCircle(0,0,1,new Color(1,1,1,.6f),g);
 		for(SpherePoint raw: points.keySet()) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
-			if(cos(p.getTheta()) > 0){
-				drawCircle(p.getPoint().y,p.getPoint().z,points.get(raw).pointSize,points.get(raw).color,g);
+			PointProperties props = points.get(raw);
+			if(p.getPoint().x > 0){
+				drawCircle(
+					p.getPoint().y * (props.pointSize+1),
+					p.getPoint().z * (props.pointSize+1),
+					props.pointSize, props.color, g);
 			}
-		}
+		}*/
 		this.repaint();
 	}
 
