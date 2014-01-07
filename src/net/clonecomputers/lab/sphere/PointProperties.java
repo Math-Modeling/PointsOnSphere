@@ -4,43 +4,51 @@ import java.awt.*;
 
 public class PointProperties {
 	public final Color color;
+	public final Color traceColor;
 	public final boolean shouldBeMoved;
 	public final double pointSize;
 	
 	private static final double defaultSize = .03;
 	
 	public PointProperties() {
-		color = Color.blue;
-		shouldBeMoved = true;
-		pointSize = defaultSize;
+		this(Color.BLUE);
 	}
 	
 	public PointProperties(Color c) {
-		color = c;
-		shouldBeMoved = true;
-		pointSize = defaultSize;
+		this(c, true);
 	}
 	
 	public PointProperties(boolean move) {
-		color = Color.blue;
-		shouldBeMoved = move;
-		pointSize = defaultSize;
+		this(Color.BLUE, move);
 	}
 	
 	public PointProperties(Color c, boolean move) {
-		color = c;
-		shouldBeMoved = move;
-		pointSize = defaultSize;
+		this(c, move, 1);
 	}
 	
 	public PointProperties(Color c, double size) {
-		color = c;
-		shouldBeMoved = true;
-		pointSize = defaultSize*size;
+		this(c, true, size);
+	}
+	
+	public PointProperties(Color c, Color trace) {
+		this(c, trace, true);
+	}
+	
+	public PointProperties(Color c, Color trace, boolean move) {
+		this(c, trace, move, 1);
+	}
+	
+	public PointProperties(Color c, Color trace, double size) {
+		this(c, trace, true, size);
 	}
 	
 	public PointProperties(Color c, boolean move, double size) {
+		this(c, Color.RED, move, size);
+	}
+	
+	public PointProperties(Color c, Color trace, boolean move, double size) {
 		color = c;
+		traceColor = trace;
 		shouldBeMoved = move;
 		pointSize = defaultSize*size;
 	}

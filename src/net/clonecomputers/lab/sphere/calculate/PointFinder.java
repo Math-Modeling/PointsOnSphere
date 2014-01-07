@@ -34,7 +34,9 @@ public class PointFinder {
 		r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
 		r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
 		for(int i = 0; i < numPoints; i++) {
-			r.addPoint(new SpherePoint(), false);
+			r.addPoint(new SpherePoint(true), new PointProperties(
+					new Color((float)random(),(float)random(),(float)random()),
+					new Color((float)random(),(float)random(),(float)random())), false);
 		}
 		r.updateDisplay();
 		optimizePoints();
@@ -50,7 +52,7 @@ public class PointFinder {
 				SpherePoint closestPoint = null;
 				for(SpherePoint q: points) {
 					if(q.equals(p)) continue;
-					double thisCos = cos(p,q);
+					double thisCos = SpherePoint.cos(p,q);
 					if(thisCos >= maxCosSoFar){
 						closestPoint = q;
 						maxCosSoFar = thisCos;
@@ -80,17 +82,9 @@ public class PointFinder {
 		}
 	}
 
-	private static double cos(SpherePoint p, SpherePoint q) {
-		return cos(p.getPhi())*cos(q.getPhi())*cos(p.getTheta()-q.getTheta()) + sin(p.getPhi())*sin(q.getPhi());
-	}
-
-	private static double cos(double theta){ // here so that I can still access Math.cos as cos
-		return Math.cos(theta);				 // despite also defining my own cos method for 2 SpherePoints
-	}
-
-	private void moveApart(SpherePoint p, SpherePoint q, double theta) {
-		r.addPoint(p.clone(), new PointProperties(Color.RED, false, .5), false);
-		r.addPoint(q.clone(), new PointProperties(Color.RED, false, .5), false);
+	private static void moveApart(SpherePoint p, SpherePoint q, double theta) {
+		//r.addPoint(p.clone(), new PointProperties(Color.RED, false, .5), false);
+		//r.addPoint(q.clone(), new PointProperties(Color.RED, false, .5), false);
 		//Renderer r = new Renderer(600,600);
 		//r.addPoint(p(p.getPoint()));
 		//r.addPoint(p(q.getPoint()));

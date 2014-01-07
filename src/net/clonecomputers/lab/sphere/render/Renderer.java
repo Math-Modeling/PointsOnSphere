@@ -108,13 +108,24 @@ public class Renderer extends JPanel {
 	}
 	
 	private SpherePoint[] getPointsByDepth() {
-		SpherePoint[] pointsByDepth = points.keySet().toArray(new SpherePoint[0]);
+		Set<SpherePoint> allPoints = new HashSet<SpherePoint>(points.keySet());
+		for(SpherePoint p: points.keySet()) {
+			if(!p.hasTrace()) continue;
+			for(SpherePoint p2: p.getTrace()) {
+				allPoints.add(p2);
+			}
+		}
+		SpherePoint[] pointsByDepth = allPoints.toArray(new SpherePoint[0]);
 		Arrays.sort(pointsByDepth, new Comparator<SpherePoint>(){
 			@Override
 			public int compare(SpherePoint p1, SpherePoint p2) {
+				PointProperties props1 = points.get(p1);
+				PointProperties props2 = points.get(p2);
+				double r1 = props1==null?0:props1.pointSize;
+				double r2 = props2==null?0:props2.pointSize;
 				return (int)signum(
-					p1.getRelative(viewAngle.clone()).getPoint().x - 
-					p2.getRelative(viewAngle.clone()).getPoint().x);
+					p1.getRelative(viewAngle.clone()).getPoint().x*(r1+1) - 
+					p2.getRelative(viewAngle.clone()).getPoint().x*(r2+1));
 			}
 		});
 		return pointsByDepth;
@@ -129,15 +140,29 @@ public class Renderer extends JPanel {
 		boolean drawnBigSphere = false;
 		for(SpherePoint raw: pointsByDepth) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
-			PointProperties props = points.get(raw);
 			if(!drawnBigSphere && p.getPoint().x >= 0) {
 				drawCircle(0,0,1,new Color(1,1,1,.6f),g);
 				drawnBigSphere = true;
 			}
-			drawCircle(
-				p.getPoint().y * (props.pointSize+1),
-				p.getPoint().z * (props.pointSize+1),
-				props.pointSize, props.color, g);
+			if(raw.parent != null && raw.olderInTrace != null) {
+				//System.out.println("about to draw a trace");
+				SpherePoint p2 = raw.olderInTrace.getRelative(viewAngle.clone());
+				PointProperties props = points.get(raw.parent);
+				drawTrace(
+						p.getPoint().y,
+						p.getPoint().z,
+						p2.getPoint().y,
+						p2.getPoint().z,
+						props.traceColor, g);
+			} else if(points.containsKey(raw)){
+				PointProperties props = points.get(raw);
+				drawCircle(
+					p.getPoint().y * (props.pointSize+1),
+					p.getPoint().z * (props.pointSize+1),
+					props.pointSize, props.color, g);
+			} else {
+				// beginning of trace
+			}
 		}
 		
 		/*for(SpherePoint raw: points.keySet()) {
@@ -187,6 +212,12 @@ public class Renderer extends JPanel {
 	private void drawCircle(double x, double y, double r, Color c, Graphics g) {
 		g.setColor(c);
 		g.fillOval(gx(x-r), gy(y+r), gsx(2*r), gsy(2*r));
+	}
+	
+	private void drawTrace(double x1, double y1, double x2, double y2, Color c, Graphics g) {
+		g.setColor(c);
+		g.drawLine(gx(x1), gy(y1), gx(x2), gy(y2));
+		//System.out.printf("Drawing a trace from (%.02f, %.02f) to (%.02f, %.02f)", x1,y1, x2,y2);
 	}
 	
 	@Override public synchronized void paintComponent(Graphics g) {
