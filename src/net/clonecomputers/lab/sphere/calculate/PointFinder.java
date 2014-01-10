@@ -31,12 +31,12 @@ public class PointFinder {
 			}
 		}
 		r = new Renderer(600,600);
-		r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
-		r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
+		//r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
+		//r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
 		for(int i = 0; i < numPoints; i++) {
 			r.addPoint(new SpherePoint(true), new PointProperties(
-					new Color((float)random(),(float)random(),(float)random()),
-					new Color((float)random(),(float)random(),(float)random())), false);
+					Color.BLUE/*new Color((float)random(),(float)random(),(float)random())*/,
+					Color.RED/*new Color((float)random(),(float)random(),(float)random())*/), false);
 		}
 		r.updateDisplay();
 		optimizePoints();
