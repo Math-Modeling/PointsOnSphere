@@ -172,7 +172,6 @@ public class SpherePoint {
 	}
 
 	private void rotateAroundLine(double howFar) { // around line through (pi/2,0) and (3pi/2,0)
-		SpherePoint start = this.clone();
 		double xzDistance = Math.hypot(point.x, point.z);
 		double xzAngle = Math.atan2(point.z,point.x);
 		Point3D newPoint = new Point3D(xzDistance*cos(xzAngle+howFar),point.y,xzDistance*sin(xzAngle+howFar));
