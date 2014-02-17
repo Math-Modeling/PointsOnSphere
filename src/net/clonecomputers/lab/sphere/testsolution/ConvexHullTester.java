@@ -72,14 +72,14 @@ public class ConvexHullTester {
 	
 	public static void main(String[] args) {
 		System.out.println(
-			isInsideConvexHull(new ArrayList<Point2D>(Arrays.asList(new Point2D[]{
+			isInsideConvexHull(new ArrayList<Point2D>(Arrays.asList(
 				new Point2D(1,1),
 				new Point2D(2,2),
 				new Point2D(1,2),
 				new Point2D(0,3),
 				new Point2D(-2,2),
 				new Point2D(3,-1),
-				new Point2D(-5,-5),
-		})), new Point2D(-4,-4)));
+				new Point2D(-5,-5)
+		)), new Point2D(-4,-4)));
 	}
 }
