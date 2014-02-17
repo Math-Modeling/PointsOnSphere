@@ -96,16 +96,16 @@ public class PointFinder {
 			howFar / sqrt(1 + pow((y1*x2 - y2*x1)/(z1*x2 - z2*x1),2) + pow((y1*z2 - y2*z1)/(x1*z2 - x2*z1),2)),
 			howFar / sqrt(1 + pow((z1*y2 - z2*y1)/(x1*y2 - x2*y1),2) + pow((z1*x2 - z2*x1)/(y1*x2 - y2*x1),2))
 		);*/
-		Point3D unitAxis = normalize(cross(pp,qp));
+		Point3D unitAxis = norm(cross(pp,qp));
 		//r.addPoint(p(unitAxis),CYAN);
 		//r.addPoint(p(product(unitAxis,-1)),CYAN);
-		Point3D pRot1 = sum(product(pp,cos(theta)),
-				product(cross(unitAxis,pp),sin(theta)),
-				product(pp,dot(unitAxis,pp)*(1-cos(theta)))
+		Point3D pRot1 = sum(prod(pp,cos(theta)),
+				prod(cross(unitAxis,pp),sin(theta)),
+				prod(pp,dot(unitAxis,pp)*(1-cos(theta)))
 				);
-		Point3D pRot2 = sum(product(pp,cos(-theta)),
-				product(cross(unitAxis,pp),sin(-theta)),
-				product(pp,dot(unitAxis,pp)*(1-cos(-theta)))
+		Point3D pRot2 = sum(prod(pp,cos(-theta)),
+				prod(cross(unitAxis,pp),sin(-theta)),
+				prod(pp,dot(unitAxis,pp)*(1-cos(-theta)))
 				);
 		/*Point3D qRot1 = sum(product(qp,cos(theta)),
 				   		   product(cross(unitAxis,qp),sin(theta)),
