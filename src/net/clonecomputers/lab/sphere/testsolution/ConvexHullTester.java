@@ -70,6 +70,14 @@ public class ConvexHullTester {
 		return true;
 	}
 	
+	public static boolean isInsideConvexHull(List<SpherePoint> spoints, SpherePoint scenter) {
+		List<Point2D> points = new ArrayList<Point2D>(spoints.size());
+		for(SpherePoint p: spoints) {
+			points.add(p.project(scenter));
+		}
+		return isInsideConvexHull(points, new Point2D(0,0));
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(
 			isInsideConvexHull(new ArrayList<Point2D>(Arrays.asList(

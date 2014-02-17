@@ -167,6 +167,11 @@ public class SpherePoint {
 		return s2;
 	}
 	
+	public Point2D project(SpherePoint centerOfPlane) {
+		SpherePoint relative = this.getRelative(centerOfPlane);
+		return new Point2D(relative.getPoint().y, relative.getPoint().z);
+	}
+	
 	public SpherePoint clone() {
 		return new SpherePoint(theta,phi);
 	}
