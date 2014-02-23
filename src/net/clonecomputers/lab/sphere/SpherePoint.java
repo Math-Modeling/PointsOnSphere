@@ -44,7 +44,7 @@ public class SpherePoint {
 	}
 	
 	public SpherePoint(SpherePoint point) {
-		this(point.phi, point.theta);
+		this(point.theta, point.phi);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class SpherePoint {
 	}
 
 	public SpherePoint(SpherePoint point, boolean trace) {
-		this(point.phi, point.theta, trace);
+		this(point.theta, point.phi, trace);
 	}
 	
 	public double getTheta() {
