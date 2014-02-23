@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -15,28 +16,46 @@ import net.clonecomputers.lab.sphere.*;
 public class Renderer extends JPanel {
 	private BufferedImage canvas;
 	private Map<SpherePoint,PointProperties> points;
+	private List<Line> lines;
 	private double zoom = .8;
 	private double pointSize = .03;
-	private SpherePoint viewAngle = new SpherePoint(0,0);
+	private SpherePoint viewAngle = new SpherePoint(-PI/6,-PI/7);
 	
 	public static void main(String[] args) { // for testing only
 		Renderer r = new Renderer(600,600);
-		/*r.addPoint(new SpherePoint(0,PI/2));
-		r.addPoint(new SpherePoint(0,-PI/2));
-		r.addPoint(new SpherePoint(0,0));
-		r.addPoint(new SpherePoint(2*PI/3,0));
-		r.addPoint(new SpherePoint(4*PI/3,0));*/
+		List<SpherePoint> pts = new ArrayList<SpherePoint>();
 		for(int i = 0; i < 100; i++) {
-		r.addPoint(new SpherePoint(),
+			pts.add(new SpherePoint());
+			r.addPoint(pts.get(pts.size()-1),
 				new PointProperties(new Color((float)random(),(float)random(),(float)random()),random()*2),
 				false);
 		}
+		for(int i = 0; i < 100; i++) {
+			r.addLine(pts.get((int)(pts.size()*Math.random())), pts.get((int)(pts.size()*Math.random())), 
+				new Color((float)random(),(float)random(),(float)random()), 
+				false);
+		}
+		/*SpherePoint base = new SpherePoint(0,0);
+		SpherePoint[] pts = new SpherePoint[]{
+				new SpherePoint(PI/2,0),
+				new SpherePoint(0,PI/2),
+				new SpherePoint(0,-PI/2)
+		};
+		r.addPoint(base);
+		r.addPoint(pts[0]);
+		r.addPoint(pts[1]);
+		r.addPoint(pts[2]);
+		r.addLine(base,pts[0], Color.BLACK, false);
+		r.addLine(base,pts[1], Color.BLACK, false);
+		r.addLine(base,pts[2], Color.BLACK, false);*/
+		
 		r.updateDisplay();
 	}
 	
 	public Renderer(int width, int height) {
 		this.canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		this.points = new HashMap<SpherePoint,PointProperties>();
+		this.lines = new ArrayList<Line>();
 		this.setMaximumSize(new Dimension(width,height));
 		this.setMinimumSize(new Dimension(width,height));
 		this.setPreferredSize(new Dimension(width,height));
@@ -58,8 +77,8 @@ public class Renderer extends JPanel {
 			public void mouseDragged(MouseEvent e) {
 				viewAngle.setTheta(viewAngle.getTheta() - .01*(e.getPoint().x - lastPoint.x));
 				viewAngle.setPhi(viewAngle.getPhi() - .01*(e.getPoint().y - lastPoint.y));
-				if(viewAngle.getPhi() > PI/2) viewAngle.setPhi(PI/2);
-				if(viewAngle.getPhi() < -PI/2) viewAngle.setPhi(-PI/2);
+				//if(viewAngle.getPhi() > PI/2) viewAngle.setPhi(PI/2);
+				//if(viewAngle.getPhi() < -PI/2) viewAngle.setPhi(-PI/2);
 				lastPoint = e.getPoint();
 				Renderer.this.updateDisplay();
 			}
@@ -67,6 +86,27 @@ public class Renderer extends JPanel {
 		this.addMouseListener(listener);
 		this.addMouseMotionListener(listener);
 		this.updateDisplay();
+	}
+	
+	public void addLine(SpherePoint start, SpherePoint end) {
+		addLine(start, end, Color.DARK_GRAY, false);
+	}
+	
+	public void addLine(SpherePoint start, SpherePoint end, Color c, boolean update) {
+		addLine(new Line(start, end, c), update);
+	}
+	
+	public synchronized void addLine(Line line, boolean update) {
+		/*SpherePoint traceReference = new SpherePoint(start.getTheta(),start.getPhi(),true);
+		traceReference.setPoint(end.getPoint());
+		this.addPoint(traceReference, new PointProperties(color,color,false,-1),update);
+		return traceReference;*/
+		synchronized(this) {
+			lines.add(line);
+		}
+		if(update){
+			updateDisplay();
+		}
 	}
 	
 	public void addPoint(SpherePoint p) {
@@ -140,11 +180,17 @@ public class Renderer extends JPanel {
 		boolean drawnBigSphere = false;
 		for(SpherePoint raw: pointsByDepth) {
 			SpherePoint p = raw.getRelative(viewAngle.clone());
-			if(!drawnBigSphere && p.getPoint().x >= 0) {
+			if(!drawnBigSphere && p.getPoint().x >= 0) { // draw big sphere
 				drawCircle(0,0,1,new Color(1,1,1,.6f),g);
+				for(Line l: lines) {
+					Point3D s = l.start.getRelative(viewAngle.clone()).getPoint();
+					Point3D e = l.end.getRelative(viewAngle.clone()).getPoint();
+					g.setColor(l.color);
+					g.drawLine(gx(s.y), gy(s.z), gx(e.y), gy(e.z));
+				}
 				drawnBigSphere = true;
 			}
-			if(raw.parent != null && raw.olderInTrace != null) {
+			if(raw.parent != null && raw.olderInTrace != null) { // draw a trace
 				//System.out.println("about to draw a trace");
 				SpherePoint p2 = raw.olderInTrace.getRelative(viewAngle.clone());
 				PointProperties props = points.get(raw.parent);
@@ -154,7 +200,7 @@ public class Renderer extends JPanel {
 						p2.getPoint().y,
 						p2.getPoint().z,
 						props.traceColor, g);
-			} else if(points.containsKey(raw)){
+			} else if(points.containsKey(raw)){ // draw a sphere
 				PointProperties props = points.get(raw);
 				drawCircle(
 					p.getPoint().y * (props.pointSize+1),

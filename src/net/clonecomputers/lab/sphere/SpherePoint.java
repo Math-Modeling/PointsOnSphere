@@ -43,6 +43,10 @@ public class SpherePoint {
 		this(point, false);
 	}
 	
+	public SpherePoint(SpherePoint point) {
+		this(point.phi, point.theta);
+	}
+	
 	/**
 	 * makes a random point
 	 */
@@ -90,6 +94,10 @@ public class SpherePoint {
 		double phi = random()*2*PI;
 		this.setPoint(new Point3D(sqrt(1-z*z)*cos(phi), sqrt(1-z*z)*sin(phi), z));
 		if(trace) this.mostRecentInTrace = new SpherePoint(null, this);
+	}
+
+	public SpherePoint(SpherePoint point, boolean trace) {
+		this(point.phi, point.theta, trace);
 	}
 	
 	public double getTheta() {

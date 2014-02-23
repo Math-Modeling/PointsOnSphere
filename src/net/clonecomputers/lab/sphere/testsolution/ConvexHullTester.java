@@ -7,7 +7,7 @@ import java.util.*;
 import net.clonecomputers.lab.sphere.*;
 
 public class ConvexHullTester {
-	private static final boolean D = false;
+	private static final boolean D = true;
 	public static List<Point2D> getConvexHull(List<Point2D> points) {
 		List<Point2D> path = new ArrayList<Point2D>();
 		Point2D p = points.get(0);
@@ -60,9 +60,10 @@ public class ConvexHullTester {
 	}
 	
 	public static boolean isInsideConvexHull(List<Point2D> points, Point2D center) {
-		Point2D p = points.get(points.size()-1);
-		for(Point2D p2: p(getConvexHull(points),D?"%s\n":"")) {
-			if(crossAgainstRef(p,p2,center) <= 0) {
+		List<Point2D> hull = p(getConvexHull(points),D?"%s\n":"");
+		Point2D p = hull.get(hull.size()-1);
+		for(Point2D p2: hull) {
+			if(crossAgainstRef(p,p2,center) <= 0.001) { // protect against FPE's
 				return false;
 			}
 			p = p2;
@@ -70,24 +71,21 @@ public class ConvexHullTester {
 		return true;
 	}
 	
-	public static boolean isInsideConvexHull(List<SpherePoint> spoints, SpherePoint scenter) {
+	public static boolean isInsideConvexHull(Collection<? extends SpherePoint> spoints, SpherePoint scenter) {
 		List<Point2D> points = new ArrayList<Point2D>(spoints.size());
 		for(SpherePoint p: spoints) {
 			points.add(p.project(scenter));
 		}
-		return isInsideConvexHull(points, new Point2D(0,0));
+		return isInsideConvexHull(p(points,D?"points=%s\n":""), new Point2D(0,0));
 	}
 	
 	public static void main(String[] args) {
 		System.out.println(
 			isInsideConvexHull(new ArrayList<Point2D>(Arrays.asList(
-				new Point2D(1,1),
-				new Point2D(2,2),
-				new Point2D(1,2),
-				new Point2D(0,3),
-				new Point2D(-2,2),
-				new Point2D(3,-1),
-				new Point2D(-5,-5)
-		)), new Point2D(-4,-4)));
+				new Point2D(0,1),
+				new Point2D(1,0),
+				new Point2D(0,-1),
+				new Point2D(-1,0)
+		)), new Point2D(0,0)));
 	}
 }
