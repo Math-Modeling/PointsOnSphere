@@ -2,12 +2,16 @@ package net.clonecomputers.lab.sphere.testsolution;
 
 import static net.clonecomputers.lab.sphere.Point2D.*;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
 
 import net.clonecomputers.lab.sphere.*;
 
 public class ConvexHullTester {
-	private static final boolean D = true;
+	private static final boolean D = false;
 	public static List<Point2D> getConvexHull(List<Point2D> points) {
 		List<Point2D> path = new ArrayList<Point2D>();
 		Point2D p = points.get(0);
@@ -60,10 +64,13 @@ public class ConvexHullTester {
 	}
 	
 	public static boolean isInsideConvexHull(List<Point2D> points, Point2D center) {
+		if(points.size() < 3) return false;
 		List<Point2D> hull = p(getConvexHull(points),D?"%s\n":"");
 		Point2D p = hull.get(hull.size()-1);
 		for(Point2D p2: hull) {
-			if(crossAgainstRef(p,p2,center) <= 0.001) { // protect against FPE's
+			if(crossAgainstRef(p,p2,center) <= 0) {
+				//display(center,hull,points);
+				//p("","%s%s:\n\t%s\n\t%s\n",center,hull,points);
 				return false;
 			}
 			p = p2;
@@ -71,6 +78,32 @@ public class ConvexHullTester {
 		return true;
 	}
 	
+	private static void display(final Point2D center, final List<Point2D> hull,
+			final List<Point2D> points) {
+		JFrame window = new JFrame("points");
+		window.setContentPane(new JPanel() {
+			private int xgp(double x) {
+				return getWidth()/2 + (int)(getWidth()*x/2);
+			}
+			private int ygp(double y) {
+				return getHeight()/2 - (int)(getHeight()*y/2);
+			}
+			@Override public void paintComponent(Graphics g) {
+				g.fillOval(xgp(center.x)-5, ygp(center.y)-5, 10, 10);
+				for(Point2D p: points) {
+					g.drawOval(xgp(p.x)-5, ygp(p.y)-5, 10, 10);
+				}
+				Point2D p = hull.get(hull.size()-1);
+				for(Point2D p2: hull) {
+					g.drawLine(xgp(p.x), ygp(p.y), xgp(p2.x), ygp(p2.y));
+					p = p2;
+				}
+			}
+		});
+		window.setSize(600,600);
+		window.setVisible(true);
+	}
+
 	public static boolean isInsideConvexHull(Collection<? extends SpherePoint> spoints, SpherePoint scenter) {
 		List<Point2D> points = new ArrayList<Point2D>(spoints.size());
 		for(SpherePoint p: spoints) {
@@ -82,10 +115,11 @@ public class ConvexHullTester {
 	public static void main(String[] args) {
 		System.out.println(
 			isInsideConvexHull(new ArrayList<Point2D>(Arrays.asList(
-				new Point2D(0,1),
-				new Point2D(1,0),
-				new Point2D(0,-1),
-				new Point2D(-1,0)
+				new Point2D(0.85,0.31), 
+				new Point2D(-0.85,0.31), 
+				new Point2D(0.53,0.68), 
+				new Point2D(-0.52,0.68), 
+				new Point2D(-0.00,0.09)
 		)), new Point2D(0,0)));
 	}
 }

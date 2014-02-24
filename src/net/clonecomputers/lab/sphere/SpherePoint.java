@@ -171,13 +171,14 @@ public class SpherePoint {
 	public SpherePoint getRelative(SpherePoint s) {
 		SpherePoint s2 = this.clone();
 		s2.setTheta(s2.getTheta() - s.getTheta());
-		s2.rotateAroundLine(s.getPhi());
+		s2.rotateAroundLine(-s.getPhi());
 		return s2;
 	}
 	
 	public Point2D project(SpherePoint centerOfPlane) {
 		SpherePoint relative = this.getRelative(centerOfPlane);
-		return new Point2D(relative.getPoint().y, relative.getPoint().z);
+		relative.updatePoint();
+		return new Point2D(relative.point.y, relative.point.z);
 	}
 	
 	public SpherePoint clone() {
@@ -201,7 +202,7 @@ public class SpherePoint {
 	}
 	
 	public String toString() {
-		return "("+theta+", "+phi+")";
+		return String.format("(%.4f,%.4f)",theta,phi);
 	}
 	
 	/*public boolean equals(Object o) {

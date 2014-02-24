@@ -76,7 +76,7 @@ public class Renderer extends JPanel {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				viewAngle.setTheta(viewAngle.getTheta() - .01*(e.getPoint().x - lastPoint.x));
-				viewAngle.setPhi(viewAngle.getPhi() - .01*(e.getPoint().y - lastPoint.y));
+				viewAngle.setPhi(viewAngle.getPhi() + .01*(e.getPoint().y - lastPoint.y));
 				//if(viewAngle.getPhi() > PI/2) viewAngle.setPhi(PI/2);
 				//if(viewAngle.getPhi() < -PI/2) viewAngle.setPhi(-PI/2);
 				lastPoint = e.getPoint();
@@ -269,6 +269,15 @@ public class Renderer extends JPanel {
 	@Override public synchronized void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.drawImage(canvas, 0, 0, this);
+		FontMetrics m = g.getFontMetrics();
+		String s = String.format("%d points", points.size());
+		int x = getWidth()/2 - m.stringWidth(s)/2;
+		int y = getHeight()/2 + gy(-1)/2 + m.getHeight()/2;
+		//System.out.printf("(%d,%d)\n",x,y);
+		g.setColor(Color.WHITE);
+		g.fillRect(x, y - m.getAscent(), g.getFontMetrics().stringWidth(s), g.getFontMetrics().getHeight());
+		g.setColor(Color.BLACK);
+		g.drawString(s, x, y);
 	}
 
 	public synchronized void removeAllPoints() {

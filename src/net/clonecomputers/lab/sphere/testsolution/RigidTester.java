@@ -2,7 +2,9 @@ package net.clonecomputers.lab.sphere.testsolution;
 
 import static java.lang.Math.*;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.clonecomputers.lab.sphere.*;
 import net.clonecomputers.lab.sphere.render.*;
@@ -11,16 +13,22 @@ public class RigidTester {
 
 	public static void main(String[] args) {
 		System.out.println(RigidTester.isRigid(Arrays.asList(
-				//new SpherePoint(0,0),
-				new SpherePoint(PI/2,0),
-				new SpherePoint(PI,0),
-				new SpherePoint(-PI/2,0),
-				new SpherePoint(0,PI/2),
-				new SpherePoint(0,-PI/2)
+				new SpherePoint(1.6850,-0.6241), 
+				new SpherePoint(-1.2746,-0.4696), 
+				new SpherePoint(-1.4565,0.6242), 
+				new SpherePoint(-2.7536,-1.1577), 
+				new SpherePoint(2.8023,-0.1660), 
+				new SpherePoint(-2.3668,-0.0838), 
+				new SpherePoint(0.1180,-0.8663), 
+				new SpherePoint(0.3878,1.1576), 
+				new SpherePoint(1.8670,0.4698), 
+				new SpherePoint(-3.0235,0.8663), 
+				new SpherePoint(0.7749,0.0838), 
+				new SpherePoint(-0.3393,0.1660)
 		)));
 	}
 	
-	public static List<ConnectedPoint> makeConnections(List<SpherePoint> sPoints) {
+	public static List<ConnectedPoint> makeConnections(Collection<SpherePoint> sPoints) {
 		List<ConnectedPoint> points = new ArrayList<ConnectedPoint>();
 		for(SpherePoint p: sPoints) {
 			points.add(new ConnectedPoint(p));
@@ -37,34 +45,37 @@ public class RigidTester {
 		
 		for(ConnectedPoint p: points) {
 			for(ConnectedPoint p2: points) {
-				if(p2.connections.contains(p)) {
-					p.connections.add(p2);
-					continue;
-				}
 				if(p.equals(p2)) continue;
 				double cos = SpherePoint.cos(p, p2);
-				if(abs(cos-maxCos) < .001) p.connections.add(p2); // protect against FPE's
+				if(abs(cos-maxCos) < .001) { // protect against FPE's
+					p.connections.add(p2);
+					p2.connections.add(p);
+				}
 			}
 		}
+		//for(ConnectedPoint p: points) p.display();
 		return points;
 	}
 	
-	public static boolean isRigid(List<SpherePoint> sPoints) { // invalid if angle is less than 90°
+	public static boolean isRigid(Collection<SpherePoint> sPoints) { // invalid if angle is less than 90°
 		List<ConnectedPoint> points = makeConnections(sPoints);
 		Renderer r = new Renderer(600, 600);
 		for(ConnectedPoint p: points) {
-			r.addPoint(p);
+			r.addPoint(p,false);
 			for(ConnectedPoint p2: p.connections) {
-				r.addLine(p,p2);
+				r.addLine(p,p2,Color.BLACK, false);
 			}
 		}
+		boolean good = true;
 		for(ConnectedPoint p: points) {
 			if(!ConvexHullTester.isInsideConvexHull(p.connections, p)){
 				System.out.printf("%s is bad\n", p);
-				return false;
+				r.addPoint(p,Color.RED,false);
+				good = false;
 			}
 		}
-		return true;
+		r.updateDisplay();
+		return good;
 	}
 
 }

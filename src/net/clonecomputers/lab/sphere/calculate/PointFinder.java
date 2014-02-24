@@ -4,11 +4,13 @@ import static java.lang.Math.*;
 import static net.clonecomputers.lab.sphere.Point3D.*;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.clonecomputers.lab.sphere.*;
 import net.clonecomputers.lab.sphere.render.Renderer;
+import net.clonecomputers.lab.sphere.testsolution.*;
 
 public class PointFinder {
 	private int numPoints = 0;
@@ -30,21 +32,25 @@ public class PointFinder {
 				JOptionPane.showMessageDialog(null, "Not a number", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
+		
 		r = new Renderer(600,600);
 		//r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
 		//r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
+		//r.removeAllPoints();
 		for(int i = 0; i < numPoints; i++) {
 			r.addPoint(new SpherePoint(true), new PointProperties(
-					Color.BLUE/*new Color((float)random(),(float)random(),(float)random())*/,
-					Color.RED/*new Color((float)random(),(float)random(),(float)random())*/), false);
+					new Color((float)random(),(float)random(),(float)random()).brighter(),
+					new Color((float)random(),(float)random(),(float)random()).darker()), false);
 		}
 		r.updateDisplay();
-		optimizePoints();
+		SpherePoint[] optimized = optimizePoints();
+		System.out.println(Arrays.toString(optimized));
+		RigidTester.isRigid(Arrays.asList(optimized));
 	}
 
-	private void optimizePoints() {
+	private SpherePoint[] optimizePoints() {
 		SpherePoint[] points = r.getAllPoints();
-		for(int step = 20; true; step++) {
+		for(int step = 20; step < 10000; step++) {
 			shuffle(points);
 			double score = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
@@ -61,15 +67,12 @@ public class PointFinder {
 				}
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
-			r.updateDisplay();
-			System.out.println(score);
-			Thread.yield();
-			/*try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}*/
+			if(step%1000 == 0) {
+				r.updateDisplay();
+				System.out.println(score);
+			}
 		}
+		return points;
 	}
 
 	private static <T> void shuffle(T[] a) {
