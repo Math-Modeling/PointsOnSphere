@@ -68,6 +68,7 @@ public class PointFinder {
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
 			if(step%1000 == 0) {
+				r.setMaxCos(score);
 				r.updateDisplay();
 				System.out.println(score);
 			}

@@ -16,6 +16,7 @@ public class SpherePoint {
 	public final SpherePoint olderInTrace;
 	private SpherePoint mostRecentInTrace;
 	public final SpherePoint parent;
+	private int tracesSkipped;
 	
 	private SpherePoint(SpherePoint previous, SpherePoint parent) {
 		this.id = globalId++;
@@ -126,7 +127,10 @@ public class SpherePoint {
 		this.point = point;
 		this.theta = atan2(point.y,point.x);
 		this.phi = asin(point.z);
-		if(trace && (mostRecentInTrace == null || cos(mostRecentInTrace,this) < .9999)){
+		if(trace && 
+				(tracesSkipped++ > 500 || 
+						(mostRecentInTrace == null || cos(mostRecentInTrace,this) < .95))){
+			tracesSkipped = 0;
 			//if(mostRecentInTrace != null) System.out.println("cos:"+cos(mostRecentInTrace,this));
 			this.mostRecentInTrace = new SpherePoint(mostRecentInTrace,this);
 		}
