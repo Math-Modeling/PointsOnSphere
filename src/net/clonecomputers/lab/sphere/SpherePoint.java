@@ -128,8 +128,8 @@ public class SpherePoint {
 		this.theta = atan2(point.y,point.x);
 		this.phi = asin(point.z);
 		if(trace && 
-				(tracesSkipped++ > 500 || 
-						(mostRecentInTrace == null || cos(mostRecentInTrace,this) < .95))){
+				(tracesSkipped++ > 100 || 
+						(mostRecentInTrace == null || cos(mostRecentInTrace,this) < .995))){
 			tracesSkipped = 0;
 			//if(mostRecentInTrace != null) System.out.println("cos:"+cos(mostRecentInTrace,this));
 			this.mostRecentInTrace = new SpherePoint(mostRecentInTrace,this);

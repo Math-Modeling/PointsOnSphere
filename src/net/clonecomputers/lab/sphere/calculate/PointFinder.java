@@ -39,8 +39,9 @@ public class PointFinder {
 		//r.removeAllPoints();
 		for(int i = 0; i < numPoints; i++) {
 			r.addPoint(new SpherePoint(true), new PointProperties(
-					new Color((float)random(),(float)random(),(float)random()).brighter(),
-					new Color((float)random(),(float)random(),(float)random()).darker()), false);
+					Color.BLUE,//new Color((float)random(),(float)random(),(float)random()).brighter(),
+					Color.RED//new Color((float)random(),(float)random(),(float)random()).darker()),
+					),false);
 		}
 		r.updateDisplay();
 		SpherePoint[] optimized = optimizePoints();
