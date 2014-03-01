@@ -241,7 +241,7 @@ public class Renderer extends JPanel {
 	public void redrawText() {
 		Graphics2D g = background.createGraphics();
 		FontMetrics m = g.getFontMetrics();
-		String s = String.format("%d points, %.4f apart", points.size(), maxCos);
+		String s = String.format("%d points, %.8f apart", points.size(), maxCos);
 		int x = background.getWidth()/2 - m.stringWidth(s)/2;
 		int y = background.getHeight()/2 + gy(-1)/2 + m.getHeight()/2;
 		//System.out.printf("(%d,%d)\n",x,y);
