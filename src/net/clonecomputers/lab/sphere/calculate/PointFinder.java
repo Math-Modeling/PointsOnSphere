@@ -51,7 +51,7 @@ public class PointFinder {
 
 	private SpherePoint[] optimizePoints() {
 		SpherePoint[] points = r.getAllPoints();
-		for(int step = 20; step < 10000; step++) {
+		for(int step = 20; step < 40000; step++) {
 			shuffle(points);
 			double score = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
@@ -68,7 +68,7 @@ public class PointFinder {
 				}
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
-			if(step%100 == 0) {
+			if(step%500 == 0) {
 				r.setMaxCos(score);
 				r.updateDisplay();
 				System.out.println(score);
