@@ -47,7 +47,7 @@ public class RigidTester {
 			for(ConnectedPoint p2: points) {
 				if(p.equals(p2)) continue;
 				double cos = SpherePoint.cos(p, p2);
-				if(abs(cos-maxCos) < .001) { // protect against FPE's
+				if(abs(cos-maxCos) < .005) { // protect against FPE's
 					p.connections.add(p2);
 					p2.connections.add(p);
 				}
