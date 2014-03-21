@@ -4,6 +4,7 @@ import static java.lang.Math.*;
 import static net.clonecomputers.lab.sphere.Point3D.*;
 
 import java.awt.*;
+import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -15,6 +16,7 @@ import net.clonecomputers.lab.sphere.testsolution.*;
 public class PointFinder {
 	private int numPoints = 0;
 	private Renderer r;
+	private PrintWriter outputCSV;
 
 	public static void main(String[] args) {
 		new PointFinder().run();
@@ -31,6 +33,17 @@ public class PointFinder {
 			} catch (NumberFormatException e) {
 				JOptionPane.showMessageDialog(null, "Not a number", "Error", JOptionPane.ERROR_MESSAGE);
 			}
+		}
+		
+		JFileChooser fc = new JFileChooser();
+		fc.showSaveDialog(null);
+		File f = fc.getSelectedFile();
+		try {
+			f.createNewFile();
+			outputCSV = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		
 		r = new Renderer(600,600);
@@ -68,6 +81,7 @@ public class PointFinder {
 				}
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
+			outputCSV.println(score);
 			if(step%500 == 0) {
 				r.setMaxCos(score);
 				r.updateDisplay();
