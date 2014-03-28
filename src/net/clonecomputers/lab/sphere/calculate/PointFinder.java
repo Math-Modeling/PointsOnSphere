@@ -8,6 +8,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.clonecomputers.lab.graph.*;
 import net.clonecomputers.lab.sphere.*;
 import net.clonecomputers.lab.sphere.render.Renderer;
 import net.clonecomputers.lab.sphere.testsolution.*;
@@ -15,6 +16,7 @@ import net.clonecomputers.lab.sphere.testsolution.*;
 public class PointFinder {
 	private int numPoints = 0;
 	private Renderer r;
+	private Grapher g;
 
 	public static void main(String[] args) {
 		new PointFinder().run();
@@ -32,7 +34,13 @@ public class PointFinder {
 				JOptionPane.showMessageDialog(null, "Not a number", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
-		
+		g = new Grapher();
+		JFrame f = new JFrame("PointsOnSphere "+numPoints);
+		f.setContentPane(g);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.pack();
+		f.setSize(600,600);
+		f.setVisible(true);
 		r = new Renderer(600,600);
 		//r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
 		//r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
@@ -68,12 +76,15 @@ public class PointFinder {
 				}
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
+			g.addToGraph(step, score);
 			if(step%500 == 0) {
 				r.setMaxCos(score);
 				r.updateDisplay();
 				System.out.println(score);
+				g.updateChart();
 			}
 		}
+		g.updateChart();
 		return points;
 	}
 
