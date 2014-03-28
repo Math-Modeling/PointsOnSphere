@@ -4,6 +4,7 @@ import static java.lang.Math.*;
 import static net.clonecomputers.lab.sphere.Point3D.*;
 
 import java.awt.*;
+import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -17,6 +18,7 @@ public class PointFinder {
 	private int numPoints = 0;
 	private Renderer r;
 	private Grapher g;
+	private PrintWriter outputCSV;
 
 	public static void main(String[] args) {
 		new PointFinder().run();
@@ -34,13 +36,24 @@ public class PointFinder {
 				JOptionPane.showMessageDialog(null, "Not a number", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
+		
+		JFileChooser fc = new JFileChooser();
+		fc.showSaveDialog(null);
+		File f = fc.getSelectedFile();
+		try {
+			f.createNewFile();
+			outputCSV = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		g = new Grapher();
-		JFrame f = new JFrame("PointsOnSphere "+numPoints);
-		f.setContentPane(g);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.pack();
-		f.setSize(600,600);
-		f.setVisible(true);
+		JFrame gWindow = new JFrame("PointsOnSphere "+numPoints);
+		gWindow.setContentPane(g);
+		gWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gWindow.pack();
+		gWindow.setSize(600,600);
+		gWindow.setVisible(true);
 		r = new Renderer(600,600);
 		//r.addPoint(new SpherePoint(0, -PI/2), new PointProperties(Color.GREEN, false), false);
 		//r.addPoint(new SpherePoint(0, PI/2), new PointProperties(Color.GREEN, false), false);
@@ -77,6 +90,7 @@ public class PointFinder {
 				if(closestPoint != null) moveApart(p,closestPoint,1.0/step);
 			}
 			g.addToGraph(step, score);
+			outputCSV.println(score);
 			if(step%500 == 0) {
 				r.setMaxCos(score);
 				r.updateDisplay();
