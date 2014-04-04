@@ -3,11 +3,17 @@ package net.clonecomputers.lab.sphere.testsolution;
 import static java.lang.Math.*;
 
 import java.awt.*;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
+import javax.swing.*;
+
+import org.apache.commons.csv.*;
+
 import net.clonecomputers.lab.sphere.*;
 import net.clonecomputers.lab.sphere.render.*;
+import net.clonecomputers.lab.sphere.render.Renderer;
 
 public class RigidTester {
 
@@ -25,15 +31,15 @@ public class RigidTester {
 				new SpherePoint(-3.0235,0.8663), 
 				new SpherePoint(0.7749,0.0838), 
 				new SpherePoint(-0.3393,0.1660)
-		)));
+				)));
 	}
-	
+
 	public static List<ConnectedPoint> makeConnections(Collection<SpherePoint> sPoints) {
 		List<ConnectedPoint> points = new ArrayList<ConnectedPoint>();
 		for(SpherePoint p: sPoints) {
 			points.add(new ConnectedPoint(p));
 		}
-		
+
 		double maxCos = -1;
 		for(SpherePoint p: points) {
 			for(SpherePoint p2: points) {
@@ -42,7 +48,7 @@ public class RigidTester {
 				if(a > maxCos) maxCos = a;
 			}
 		}
-		
+
 		for(ConnectedPoint p: points) {
 			for(ConnectedPoint p2: points) {
 				if(p.equals(p2)) continue;
@@ -56,9 +62,37 @@ public class RigidTester {
 		//for(ConnectedPoint p: points) p.display();
 		return points;
 	}
-	
+
 	public static boolean isRigid(Collection<SpherePoint> sPoints) { // invalid if angle is less than 90°
 		List<ConnectedPoint> points = makeConnections(sPoints);
+		JFileChooser fc = new JFileChooser();
+		int retval = fc.showSaveDialog(null);
+		File f = fc.getSelectedFile();
+		if(!(f == null || retval != JFileChooser.APPROVE_OPTION)) {
+			if(!f.getName().endsWith(".csv")) f = new File(f.getAbsolutePath()+".csv");
+			CSVPrinter csv = null;
+			try {
+				csv = new CSVPrinter(new BufferedWriter(new FileWriter(f)), CSVFormat.EXCEL);
+				for(ConnectedPoint p: points) {
+					for(ConnectedPoint p2: points) {
+						if(p.connections.contains(p2)) {
+							csv.print(1);
+						} else {
+							csv.print(0);
+						}
+					}
+					csv.println();
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} finally {
+				try {
+					csv.close();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 		Renderer r = new Renderer(600, 600);
 		for(ConnectedPoint p: points) {
 			r.addPoint(p,false);
@@ -69,7 +103,7 @@ public class RigidTester {
 		boolean good = true;
 		for(ConnectedPoint p: points) {
 			if(!ConvexHullTester.isInsideConvexHull(p.connections, p)){
-				System.out.printf("%s is bad\n", p);
+				//System.out.printf("%s is bad\n", p);
 				r.addPoint(p,Color.RED,false);
 				good = false;
 			}

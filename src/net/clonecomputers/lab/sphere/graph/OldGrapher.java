@@ -1,7 +1,8 @@
-package net.clonecomputers.lab.graph;
+package net.clonecomputers.lab.sphere.graph;
 
 import java.awt.*;
 import java.lang.reflect.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -10,18 +11,16 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.plot.*;
 import org.jfree.data.*;
 
-public class Grapher extends JPanel {
+public class OldGrapher extends JPanel {
 	JFreeChart chart;
 	private FastScatterPlot plot;
 	private float[][] data;
-	private int size;
-	private float minimum = Float.MAX_VALUE;
 	
-	public Grapher() {
-		data = new float[2][4000];
-		plot = new FastScatterPlot();
-		plot.setDomainAxis(new LogarithmicAxis("X"));
-		plot.setRangeAxis(new LogarithmicAxis("Y"));
+	public OldGrapher() {
+		data = new float[2][0];
+		plot = new FastScatterPlot(data,new NumberAxis("X"),new NumberAxis("Y"));
+		//plot.setDomainAxis(new LogarithmicAxis("X"));
+		//plot.setRangeAxis(new LogarithmicAxis("Y"));
 		plot.getDomainAxis().setAutoRange(true);
 		plot.getRangeAxis().setAutoRange(true);
 		plot.setDomainPannable(true);
@@ -39,14 +38,8 @@ public class Grapher extends JPanel {
 		//data = new ArrayList<float[]>();
 	}
 	
-	public void updateChart() {
-		float[][] tmpData = new float[2][size];
-		System.arraycopy(data[0],0,tmpData[0],0,size);
-		System.arraycopy(data[1],0,tmpData[1],0,size);
-		for(int i = 0; i < tmpData[1].length; i++) {
-			tmpData[1][i] = tmpData[1][i] - minimum;
-		}
-		plot.setData(tmpData);
+	private void updateChart() {
+		plot.setData(data);
 		try {
 			forcePlotToRecalculateDataRanges();
 		} catch (SecurityException e) {
@@ -62,8 +55,8 @@ public class Grapher extends JPanel {
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}
-		//System.out.println(Arrays.deepToString(plot.getData()));
-		//System.out.println(plot.getDataRange(plot.getRangeAxis()));
+		System.out.println(Arrays.deepToString(plot.getData()));
+		System.out.println(plot.getDataRange(plot.getRangeAxis()));
 		plot.getDomainAxis().setRange(plot.getDataRange(plot.getDomainAxis()), false, true);
 		plot.getRangeAxis().setRange(plot.getDataRange(plot.getRangeAxis()), false, true);
 		this.repaint();
@@ -85,29 +78,58 @@ public class Grapher extends JPanel {
 		yRangeField.set(plot, yRange);
 	}
 	
-	public void addToGraph(float x, float y) {
-		if(size >= data[0].length) {
-			float[][] tmpData = new float[2][size*2];
-			System.arraycopy(data[0], 0, tmpData[0], 0, size);
-			System.arraycopy(data[1], 0, tmpData[1], 0, size);
-			data = tmpData;
+	public void addToGraph(double[] dataLine) {
+		float[][] tmpData = new float[2][dataLine.length + data.length];
+		System.arraycopy(data[0], 0, tmpData[0], 0, data.length);
+		System.arraycopy(data[1], 0, tmpData[1], 0, data.length);
+		for(int i = 0; i < dataLine.length; i++) {
+			tmpData[0][i+data.length] = i;
+			tmpData[1][i+data.length] = (float)dataLine[i];
 		}
-		data[0][size] = x;
-		data[1][size] = y;
-		size++;
-		if(y < minimum) minimum = y;
+		this.data = tmpData;
+		updateChart();
 	}
 	
-	public void addToGraph(double x, double y) {
-		addToGraph((float)x, (float)y);
+	public void addToGraph(float[] dataLine) {
+		float[][] tmpData = new float[2][dataLine.length + data[0].length];
+		System.arraycopy(data[0], 0, tmpData[0], 0, data[0].length);
+		System.arraycopy(data[1], 0, tmpData[1], 0, data[1].length);
+		System.arraycopy(dataLine, 0, tmpData[1], data[1].length, dataLine.length);
+		for(int i = 0; i < dataLine.length; i++) {
+			tmpData[0][i+data.length] = i;
+		}
+		this.data = tmpData;
+		updateChart();
 	}
 	
-	public void addToGraph(float[] xy) {
-		addToGraph(xy[0],xy[1]);
+	public void addToGraph(double[] inputLine, double[] dataLine) {
+		float[][] tmpData = new float[2][dataLine.length + data[0].length];
+		System.arraycopy(data[0], 0, tmpData[0], 0, data[0].length);
+		System.arraycopy(data[1], 0, tmpData[1], 0, data[1].length);
+		for(int i = 0; i < dataLine.length; i++) {
+			tmpData[0][i+data.length] = (float)inputLine[i];
+			tmpData[1][i+data.length] = (float)dataLine[i];
+		}
+		this.data = tmpData;
+		updateChart();
 	}
 	
-	public void addToGraph(double[] xy) {
-		addToGraph((float)xy[0],(float)xy[1]);
+	public void addToGraph(float[] inputLine, float[] dataLine) {
+		float[][] tmpData = new float[2][dataLine.length + data[0].length];
+		System.arraycopy(data[0], 0, tmpData[0], 0, data[0].length);
+		System.arraycopy(data[1], 0, tmpData[1], 0, data[1].length);
+		System.arraycopy(inputLine, 0, tmpData[0], data[0].length, inputLine.length);
+		System.arraycopy(dataLine, 0, tmpData[1], data[1].length, dataLine.length);
+		this.data = tmpData;
+		updateChart();
+	}
+	
+	public void addToGraph(float[][] newData) {
+		addToGraph(newData[0], newData[1]);
+	}
+	
+	public void addToGraph(double[][] newData) {
+		addToGraph(newData[0], newData[1]);
 	}
 	
 	@Override
@@ -120,14 +142,13 @@ public class Grapher extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		Grapher g = new Grapher();
-		float[] data = new float[2];
-		for(int i = 0; i < 9000; i++) {
-			data[0] = i/200f;
-			data[1] = (float)Math.sin(i/100f/Math.PI);
-			g.addToGraph(data);
+		OldGrapher g = new OldGrapher();
+		float[][] data = new float[2][2000];
+		for(int i = 0; i < data[0].length; i++) {
+			data[0][i] = i/200f;
+			data[1][i] = (float)Math.sin(i/100f/Math.PI);
 		}
-		g.updateChart();
+		g.addToGraph(data);
 		//g.addToGraph(new double[5]);
 		/*g.addToGraph(new double[]{
 				1,3.3,5,7,2,5,7,9
@@ -136,7 +157,7 @@ public class Grapher extends JPanel {
 				100,1000,500,370,740,37,74,10
 		});*/
 		
-		JFrame f = new JFrame("Grapher test");
+		JFrame f = new JFrame("OldGrapher test");
 		f.setContentPane(g);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.pack();

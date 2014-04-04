@@ -9,8 +9,8 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.clonecomputers.lab.graph.*;
 import net.clonecomputers.lab.sphere.*;
+import net.clonecomputers.lab.sphere.graph.*;
 import net.clonecomputers.lab.sphere.render.Renderer;
 import net.clonecomputers.lab.sphere.testsolution.*;
 
@@ -38,13 +38,21 @@ public class PointFinder {
 		}
 		
 		JFileChooser fc = new JFileChooser();
-		fc.showSaveDialog(null);
+		int retval = fc.showSaveDialog(null);
 		File f = fc.getSelectedFile();
+		if(!f.getName().endsWith(".csv")) f = new File(f.getAbsolutePath()+".csv");
+		if(f == null || retval != JFileChooser.APPROVE_OPTION) {
+			outputCSV = new PrintWriter(new OutputStream(){
+				@Override
+				public void write(int arg0) throws IOException {
+					// do nothing
+				}
+			});
+		}
 		try {
 			f.createNewFile();
 			outputCSV = new PrintWriter(new BufferedWriter(new FileWriter(f)));
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		g = new Grapher();
