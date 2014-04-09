@@ -40,7 +40,7 @@ public class PointFinder {
 		JFileChooser fc = new JFileChooser();
 		int retval = fc.showSaveDialog(null);
 		File f = fc.getSelectedFile();
-		if(!f.getName().endsWith(".csv")) f = new File(f.getAbsolutePath()+".csv");
+		if(f != null && !f.getName().endsWith(".csv")) f = new File(f.getAbsolutePath()+".csv");
 		if(f == null || retval != JFileChooser.APPROVE_OPTION) {
 			outputCSV = new PrintWriter(new OutputStream(){
 				@Override
@@ -48,12 +48,13 @@ public class PointFinder {
 					// do nothing
 				}
 			});
-		}
-		try {
-			f.createNewFile();
-			outputCSV = new PrintWriter(new BufferedWriter(new FileWriter(f)));
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} else {
+			try {
+				f.createNewFile();
+				outputCSV = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 		g = new Grapher();
 		JFrame gWindow = new JFrame("PointsOnSphere "+numPoints);

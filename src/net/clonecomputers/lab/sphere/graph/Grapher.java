@@ -20,7 +20,7 @@ public class Grapher extends JPanel {
 	public Grapher() {
 		data = new float[2][4000];
 		plot = new FastScatterPlot();
-		plot.setDomainAxis(new LogarithmicAxis("X"));
+		//plot.setDomainAxis(new LogarithmicAxis("X"));
 		plot.setRangeAxis(new LogarithmicAxis("Y"));
 		plot.getDomainAxis().setAutoRange(true);
 		plot.getRangeAxis().setAutoRange(true);
