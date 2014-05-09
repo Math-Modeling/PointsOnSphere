@@ -81,7 +81,7 @@ public class PointFinder {
 
 	private SpherePoint[] optimizePoints() {
 		SpherePoint[] points = r.getAllPoints();
-		for(int step = 20; step < 40000; step++) {
+		for(int step = 20; step < 100000; step++) {
 			shuffle(points);
 			double score = -Double.MAX_VALUE;
 			for(SpherePoint p: points) {
