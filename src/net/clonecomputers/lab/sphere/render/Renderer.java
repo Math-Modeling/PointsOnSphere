@@ -58,6 +58,10 @@ public class Renderer extends JPanel {
 	}
 	
 	public Renderer(int width, int height) {
+		this(width, height, false);
+	}
+	
+	public Renderer(int width, int height, boolean spin) {
 		this.canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		this.background = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		this.testPixel = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
@@ -74,6 +78,21 @@ public class Renderer extends JPanel {
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+		if(spin) {
+			new Thread(new Runnable() {
+				public void run() {
+					while(true) {
+						viewAngle.setTheta(viewAngle.getTheta() - .004);
+						Renderer.this.updateDisplay();
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+			}).start();
+		}
 		MouseInputListener listener = new MouseInputAdapter() {
 			Point lastPoint;
 			
